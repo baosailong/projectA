@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include<bits/stdc++.h>
+#include<myfunctions.h>
 
+using namespace std;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -8,26 +11,75 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // connect函数
-    connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(start()));
+    connect(ui->pushButton_2, SIGNAL(clicked()), this, SLOT(start()));
 }
+struct value2{
+    QString name,time,w;
+};
+struct value3{
+    string name;
+    int year,month,day;
+    int w;
+};//存于链表中
+void bridge(vector<value2> &tofill,bptr rootptr)
+{
+    if(rootptr==NULL)return ;
+   bridge(tofill,rootptr->lch);
 
+   value2 temp;
+
+   temp.name=StringToQString(rootptr->v.name);
+   temp.time=StringToQString(rootptr->v.time);
+   temp.w=StringToQString(IntToString(rootptr->v.w));
+
+   tofill.push_back(temp);
+
+   bridge(tofill,rootptr->rch);
+}
 void MainWindow::start()
 {
-    // 清除结果区域前面缓存的结果
-    ui->textBrowser->clear();
+    AVL myavl;
+    ui->textBrowser_4->clear();
+    ui->textBrowser_5->clear();
+    ui->textBrowser_6->clear();
 
-    //  获取输入框的内容
     QString content = ui->textEdit->toPlainText();
-    char *content_char = content.toLatin1().data(); // 将QString转化为char字符数组
-
-   //中间处理过程
+    string content_char = content.toLatin1().data(); // 将QString转化为char字符数组
     QString result;
-    for(int i = 0;'\0' != content_char[i];i++)
-        result += content_char[i];
+    value2 myvalue;
+    vector<value2>output;
+    int cnt=0;
+    for(int i=0;i<content_char.size();++i)
+    {
+        if(content_char[i]=='\n'){
+            cnt++;
+            continue;
+        }
+        else if(cnt==0)myvalue.name=myvalue.name+content_char[i];
+        else if(cnt==1)myvalue.time=myvalue.time+content_char[i];
+        else myvalue.w=myvalue.w+content_char[i];
+    }
 
-   //  将获取的内容用append输出到TextBrowser
-   ui->textBrowser_4->clear();
-   ui->textBrowser_4->append(result);    // 将结果输出到结果区域
+    value avlvalue;
+    value3 listvalue;
+    bptr Root=myavl.Root;
+
+    avlvalue.name=QStringToString(myvalue.name);
+    avlvalue.time=QStringToString(myvalue.time);
+    avlvalue.w=StringToInt(QStringToString(myvalue.w));
+
+    myavl.treeInsert(Root,avlvalue);
+    myavl.browse(Root);
+
+    bridge(output,Root);//得到了中序遍历QString输出
+    for(int i=0;i<output.size();++i)
+    {
+       ui->textBrowser_4->append(output[i].name);
+
+       ui->textBrowser_5->append(output[i].time);
+
+       ui->textBrowser_6->append(output[i].w);
+    }
 }
 
 MainWindow::~MainWindow()
